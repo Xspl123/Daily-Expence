@@ -1,0 +1,107 @@
+/* Custom styles for the navbar */
+.nav-item {
+    position: relative;
+}
+
+.nav-item .nav-link {
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+}
+
+/* Change icon size for Expense link */
+.nav-item .nav-link i {
+    font-size: 20px;
+    margin-right: 8px; /* Add space between the icon and text */
+}
+
+/* Sidebar Styles */
+#sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 250px;
+    background-color: #2c3e50;
+    color: white;
+    padding-top: 20px;
+    z-index: 1;
+}
+
+#sidebar h3 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#sidebar .nav-link {
+    color: white;
+    padding: 12px 20px;
+}
+
+#sidebar .nav-link:hover {
+    background-color: #34495e;
+}
+
+/* Content Section */
+.content {
+    margin-left: 250px;
+    padding: 20px;
+    padding-top: 80px; /* Space for the navbar */
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #2c3e50;
+    color: white;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+footer a {
+    color: white;
+}
+
+/* Expense Side Panel Styles */
+#expenseSidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 250px;
+    background-color: #34495e;
+    color: white;
+    padding-top: 20px;
+    display: none;
+    z-index: 999;
+}
+
+#expenseSidebar .nav-link {
+    color: white;
+    padding: 12px 20px;
+}
+
+#expenseSidebar .nav-link:hover {
+    background-color: #2c3e50;
+}
+
+/* Button to open the Expense Sidebar */
+#openExpenseSidebar {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: #34495e;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 2;
+}
+
+/* Show the sidebar when it is triggered */
+#expenseSidebar.show {
+    display: block;
+}
