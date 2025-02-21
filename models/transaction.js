@@ -53,10 +53,6 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: "CASCADE",
         onDelete: "SET NULL",
       },
-      type: {
-        type: DataTypes.ENUM("Income", "Expense"),
-        allowNull: false,
-      },
       amount: {
         type: DataTypes.DECIMAL(18, 2),
         allowNull: false,
@@ -68,16 +64,6 @@ module.exports = (sequelize, DataTypes) => {
       description: {
         type: DataTypes.TEXT,
         allowNull: true,
-      },
-      created_at: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW,
-      },
-      updated_at: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW,
       },
     },
     {

@@ -9,9 +9,10 @@ const User = require("./user")(sequelize, DataTypes);
 const Account = require("./account")(sequelize, DataTypes);
 const Transaction = require("./transaction")(sequelize, DataTypes);
 const Category = require("./category")(sequelize, DataTypes);
+const Budget = require("./budget")(sequelize, DataTypes);
 
 // Database Object
-const db = { sequelize, Sequelize, User, Account, Transaction, Category };
+const db = { sequelize, Sequelize, User, Account, Transaction, Category ,Budget};
 
 // Define Associations
 User.hasMany(Account, { foreignKey: "user_id", onDelete: "CASCADE", onUpdate: "CASCADE" });

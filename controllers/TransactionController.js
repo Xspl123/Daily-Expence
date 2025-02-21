@@ -1,65 +1,59 @@
-const { Sequelize } = require('sequelize');
-const { Transaction } = require('../models');
-
+const { Transaction, Account, Category, User, Budget } = require("../models");
 
 const TransactionController = {
-  // ✅ Create a Transaction
-  async create(req, res) {
+  createTransaction: async (req, res) => {
     try {
-      //console.log('Request Body:', req.body); 
-      const transaction = await Transaction.create(req.body);
-      return res.status(201).json(transaction);
-    } catch (error) {
-      console.error('Error creating transaction:', error);
-      return res.status(500).json({ error: error.message });
-    }
-  },
-  
+      const { account_id, category_id, amount, date, description } = req.body;
+      const user_id = req.user.userId; // Authenticated user ka ID le rahe hain
 
-  // ✅ Get All Transactions
-  async getAll(req, res) {
-    try {
-      const transactions = await Transaction.findAll();
-      return res.status(200).json(transactions);
-    } catch (error) {
-      return res.status(500).json({ error: error.message });
-    }
-  },
+      // ✅ Category Validate Karein
+      if (!category_id) {
+        return res.status(400).json({ error: "Category is required" });
+      }
 
-  // ✅ Get Single Transaction by ID
-  async getById(req, res) {
-    try {
-      const transaction = await Transaction.findByPk(req.params.id);
-      if (!transaction) return res.status(404).json({ error: "Transaction not found" });
-      return res.status(200).json(transaction);
-    } catch (error) {
-      return res.status(500).json({ error: error.message });
-    }
-  },
+      const category = await Category.findByPk(category_id);
+      if (!category) {
+        return res.status(404).json({ error: "Category not found" });
+      }
 
-  // ✅ Update a Transaction
-  async update(req, res) {
-    try {
-      const [updated] = await Transaction.update(req.body, {
-        where: { id: req.params.id }
+      // ✅ Budget Entry Find or Create (Agar pehle se nahi hai to create ho)
+      const [budget, created] = await Budget.findOrCreate({
+        where: { user_id, category_id },
+        defaults: { budget_amount: 0, total_amount: 0 }, // Default values
       });
-      if (!updated) return res.status(404).json({ error: "Transaction not found" });
-      return res.status(200).json({ message: "Transaction updated successfully" });
+
+      // ✅ New Total Spending Calculate Karein
+      const newTotalAmount = parseFloat(budget.total_amount || 0) + parseFloat(amount);
+
+      // ✅ Budget Check Karein
+      if (budget.budget_amount && newTotalAmount > budget.budget_amount) {
+        return res.status(400).json({ error: "Budget exceeded for this category!" });
+      }
+
+      // ✅ Transaction Create Karein
+      const transaction = await Transaction.create({
+        user_id,
+        account_id,
+        category_id,
+        amount,
+        date,
+        description,
+      });
+
+      // ✅ Budget Table ka `total_amount` Update Karein (Category table ko ignore karein)
+      budget.total_amount = newTotalAmount;
+      await budget.save();
+
+      return res.status(201).json({
+        message: "Transaction created successfully",
+        transaction,
+      });
+
     } catch (error) {
-      return res.status(500).json({ error: error.message });
+      console.error("Error in createTransaction:", error);
+      return res.status(500).json({ error: "Internal Server Error" });
     }
   },
-
-  // ✅ Delete a Transaction
-  async delete(req, res) {
-    try {
-      const deleted = await Transaction.destroy({ where: { id: req.params.id } });
-      if (!deleted) return res.status(404).json({ error: "Transaction not found" });
-      return res.status(200).json({ message: "Transaction deleted successfully" });
-    } catch (error) {
-      return res.status(500).json({ error: error.message });
-    }
-  }
 };
 
 module.exports = TransactionController;

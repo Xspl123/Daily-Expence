@@ -48,7 +48,7 @@ router.delete('/category-delete/:id', auth,CategoryController.deleteCategory);
 // ===============================
 // 🚀 Transaction Routes
 // ===============================
-//router.post('/transactions', auth, TransactionController.createTransaction);
+router.post('/transactions/create-transaction', auth, TransactionController.createTransaction);
 //router.get('/transactions', auth, TransactionController.getAllTransactions);
 //router.get('/transactions/:id', auth, TransactionController.getTransactionById);
 //router.put('/transactions/:id', auth, TransactionController.updateTransaction);
