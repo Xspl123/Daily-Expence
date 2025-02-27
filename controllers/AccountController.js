@@ -149,12 +149,18 @@ exports.updateAccount = async (req, res) => {
 
 // ✅ Delete Account
 exports.deleteAccount = async (req, res) => {
+  
   try {
     const accountId = req.params.id;
+    console.log("account", accountId);
     const user_id = req.user.userId;
+    console.log(user_id);
+    
 
     // Find account belonging to the authenticated user
     const account = await Account.findOne({ where: { id: accountId, user_id } });
+    console.log("account", account);
+    
 
     if (!account) {
       return res.status(404).json({ message: "Account not found" });

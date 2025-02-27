@@ -33,8 +33,8 @@ router.post('/users/logout', auth, UserController.logoutUser);
 router.post('/account-create', auth, validateAccountCreation, validate, AccountController.createAccount);
 router.get('/accounts', auth, AccountController.getAllAccounts);
 router.get('/accounts/:id', auth, AccountController.getAccountById);
-router.put('/accounts/:id', auth, validateAccountUpdate, validate, AccountController.updateAccount);
-router.delete('/accounts/:id', auth, AccountController.deleteAccount);
+router.put('/accounts-update/:id', auth, validateAccountUpdate, validate, AccountController.updateAccount);
+router.delete('/accounts-delete/:id', auth, AccountController.deleteAccount);
 
 // ===============================
 // 🚀 Category Routes
@@ -49,7 +49,7 @@ router.delete('/category-delete/:id', auth,CategoryController.deleteCategory);
 // 🚀 Transaction Routes
 // ===============================
 router.post('/transactions/create-transaction', auth, TransactionController.createTransaction);
-//router.get('/transactions', auth, TransactionController.getAllTransactions);
+router.get('/transactions/get-transactions', auth, TransactionController.getTransactions);
 //router.get('/transactions/:id', auth, TransactionController.getTransactionById);
 //router.put('/transactions/:id', auth, TransactionController.updateTransaction);
 //router.delete('/transactions/:id', auth, TransactionController.deleteTransaction);
