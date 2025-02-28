@@ -81,26 +81,47 @@ exports.getAccountById = async (req, res) => {
     });
   }
 };
-
-// Get All Users
+// Get All Accounts with User Details
+// Get Authenticated User's Accounts with User Details
 exports.getAllAccounts = async (req, res) => {
   try {
+    const user_id = req.user?.id; // Authenticated user ID
+
+    // ✅ Check authentication
+    if (!user_id) {
+      return res.status(401).json({ error: "Unauthorized access" });
+    }
+
     const accounts = await Account.findAll({
-      attributes: ['account_name', 'account_balance'],
+      where: { user_id }, // ✅ Fetch only logged-in user's accounts
+      attributes: ["id", "account_name", "account_balance"], // Account attributes
+      include: [
+        {
+          model: User,
+          attributes: ["id", "name", "email"], // Fetch User details
+        },
+      ],
     });
 
+    // ✅ Handle No Accounts Case
+    if (!accounts.length) {
+      return res.status(404).json({ message: "No accounts found for this user" });
+    }
+
     return res.status(200).json({
-      message: 'Account fetched successfully',
+      message: "Accounts fetched successfully",
       accounts,
     });
   } catch (error) {
-    console.error('Error fetching accounts:', error);
+    console.error("❌ Error fetching accounts:", error);
     return res.status(500).json({
-      message: 'Internal Server Error',
+      message: "Internal Server Error",
       error: error.message,
     });
   }
 };
+
+
 
 // ✅ Update Account
 exports.updateAccount = async (req, res) => {
