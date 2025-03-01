@@ -1,12 +1,17 @@
 "use strict";
 
-const { Account, User } = require("../models");
+const { Account, User,Transaction } = require("../models");
 
 // ✅ Create an Account
 exports.createAccount = async (req, res) => {
   try {
     const { account_name, account_balance } = req.body;
-    const user_id = req.user.userId;
+    
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: "Unauthorized: User not found" });
+    }
+
+    const user_id = req.user.id; // ✅ Ensure user_id is not undefined
 
     // Ensure account name is unique for this user
     const existingAccount = await Account.findOne({
@@ -21,7 +26,7 @@ exports.createAccount = async (req, res) => {
     const newAccount = await Account.create({
       user_id,
       account_name,
-      account_balance: account_balance || 0,
+      account_balance: account_balance || null, // ✅ Allow NULL balance
     });
 
     return res.status(201).json({
@@ -36,6 +41,7 @@ exports.createAccount = async (req, res) => {
     });
   }
 };
+
 
 
 // ✅ Get All Accounts for a User
@@ -170,31 +176,42 @@ exports.updateAccount = async (req, res) => {
 
 // ✅ Delete Account
 exports.deleteAccount = async (req, res) => {
-  
   try {
     const accountId = req.params.id;
-    console.log("account", accountId);
-    const user_id = req.user.userId;
-    console.log(user_id);
-    
+    const user_id = req.user?.id; // Authenticated user ID
 
-    // Find account belonging to the authenticated user
-    const account = await Account.findOne({ where: { id: accountId, user_id } });
-    console.log("account", account);
-    
-
-    if (!account) {
-      return res.status(404).json({ message: "Account not found" });
+    // ✅ Check authentication
+    if (!user_id) {
+      return res.status(401).json({ error: "Unauthorized access" });
     }
 
+    // ✅ Find account belonging to the authenticated user
+    const account = await Account.findOne({ where: { id: accountId, user_id } });
+
+    if (!account) {
+      return res.status(404).json({ error: "Account not found or unauthorized" });
+    }
+
+    // ✅ Check if transactions exist for this account
+    const transactionCount = await Transaction.count({ where: { account_id: accountId } });
+
+    if (transactionCount > 0) {
+      return res.status(400).json({ 
+        error: "You cannot delete this account directly because it has associated transactions. Please delete the transactions first."
+      });
+    }
+
+    // ✅ Delete the account if no transactions exist
     await account.destroy();
 
     return res.status(200).json({ message: "Account deleted successfully" });
   } catch (error) {
-    console.error("Error deleting account:", error);
+    console.error("❌ Error deleting account:", error);
     return res.status(500).json({
       message: "Internal Server Error",
       error: error.message,
     });
   }
 };
+
+

@@ -34,9 +34,13 @@ module.exports = (sequelize, DataTypes) => {
       },
       account_balance: {
         type: DataTypes.DECIMAL(18, 2),
-        allowNull: false,
-        defaultValue: 0,
+        allowNull: true,  // ✅ NULL allowed
+        defaultValue: null, // ✅ Default should be NULL
+        validate: {
+          min: 0, // ✅ Ensure it's positive if provided
+        },
       },
+      
     
     },
     {

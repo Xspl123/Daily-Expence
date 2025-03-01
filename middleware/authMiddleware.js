@@ -7,26 +7,32 @@ module.exports = (req, res, next) => {
     return res.status(401).json({ message: "No token, authorization denied" });
   }
 
-  // Expecting header format: "Bearer <token>"
+  // ✅ Ensure "Bearer <token>" format
   const tokenParts = authHeader.split(" ");
   const token = tokenParts.length === 2 ? tokenParts[1] : authHeader;
 
   try {
-    // Verify token using SESSION_SECRET from .env
-    const decoded = jwt.verify(token, process.env.SESSION_SECRET);
-    console.log("Decoded Token:", decoded); // Debugging line
+    if (!process.env.SESSION_SECRET) {
+      console.error("SESSION_SECRET is missing in .env file");
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
 
-    if (!decoded.id && !decoded.userId) {
+    // ✅ Verify token
+    const decoded = jwt.verify(token, process.env.SESSION_SECRET);
+    console.log("✅ Decoded Token:", decoded); // Debugging line
+
+    // ✅ Ensure decoded token has an ID
+    const userId = decoded.id || decoded.userId;
+    if (!userId) {
       return res.status(401).json({ message: "Invalid token structure" });
     }
 
-    req.user = {
-      id: decoded.id || decoded.userId, // Ensure correct ID is used
-    };
+    // ✅ Set user in request
+    req.user = { id: userId };
 
     next();
   } catch (error) {
-    console.error("Token verification failed:", error);
+    console.error("❌ Token verification failed:", error);
     return res.status(401).json({ message: "Token is not valid" });
   }
 };
