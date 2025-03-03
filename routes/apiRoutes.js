@@ -6,6 +6,7 @@ const UserController = require('../controllers/UserController');
 const AccountController = require('../controllers/AccountController');
 const TransactionController = require('../controllers/TransactionController');
 const CategoryController = require("../controllers/CategoryController");
+const BudgetController = require("../controllers/BudgetController");
 
 // Import Middlewares
 const auth = require('../middleware/authMiddleware');
@@ -52,6 +53,13 @@ router.post('/transactions/create-transaction', auth, TransactionController.crea
 router.get('/transactions/get-transactions', auth, TransactionController.getTransactions);
 //router.get('/transactions/:id', auth, TransactionController.getTransactionById);
 //router.put('/transactions/:id', auth, TransactionController.updateTransaction);
-//router.delete('/transactions/:id', auth, TransactionController.deleteTransaction);
+router.delete('/transactions-delete/:id', auth, TransactionController.deleteTransaction);
+
+// ===============================
+// 🚀 Budgets Routes
+// ===============================
+router.get("/budgets", auth,BudgetController.getBudgets);
+router.post("/create-budget", auth,BudgetController.createBudget);
+
 
 module.exports = router;
