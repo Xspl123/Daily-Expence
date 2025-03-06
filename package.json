@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "bun run app.js",
+    "dev": "bun run app.js --watch",
+    "build": "bun build app.js --outdir=dist",
+    "prod": "bun run app.js --env production"
   },
   "keywords": [],
   "author": "",
@@ -24,11 +27,14 @@
     "express-validator": "^7.2.1",
     "i": "^0.3.7",
     "jsonwebtoken": "^9.0.2",
-    "mysql2": "^3.12.0",
-    "nodemon": "^3.1.9",
-    "sequelize": "^6.37.5"
+    "mysql2": "^3.13.0",
+    "nodemon": "^3.1.9"
   },
   "devDependencies": {
-    "sequelize-cli": "^6.6.2"
+    "@types/bun": "latest"
+  },
+  "private": true,
+  "peerDependencies": {
+    "typescript": "^5"
   }
 }

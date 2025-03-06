@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  admin-panel:
+    build: .
+    container_name: admin-panel-1
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      DB_HOST: mysql-db
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: admin_panel
+    depends_on:
+      - mysql-db
+    restart: always
+
+  mysql-db:
+    image: mysql:5.7
+    container_name: mysql-db-1
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: admin_panel
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  apache:
+    image: httpd:2.4
+    container_name: apache-container
+    restart: always
+    ports:
+      - "80:80" # Corrected to 80:80
+    volumes:
+      - ./apache.conf:/usr/local/apache2/conf/httpd.conf
+      - ./app:/usr/local/apache2/htdocs/
+    depends_on:
+      - admin-panel
+
+volumes:
+  mysql_data:

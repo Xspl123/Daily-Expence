@@ -52,7 +52,7 @@ router.delete('/category-delete/:id', auth,CategoryController.deleteCategory);
 router.post('/transactions/create-transaction', auth, TransactionController.createTransaction);
 router.get('/transactions/get-transactions', auth, TransactionController.getTransactions);
 //router.get('/transactions/:id', auth, TransactionController.getTransactionById);
-//router.put('/transactions/:id', auth, TransactionController.updateTransaction);
+router.put('/transactions-update/:id', auth, TransactionController.updateTransaction);
 router.delete('/transactions-delete/:id', auth, TransactionController.deleteTransaction);
 
 // ===============================

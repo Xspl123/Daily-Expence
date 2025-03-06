@@ -95,7 +95,7 @@ const TransactionController = {
             attributes: ["id", "account_name", "account_balance"], // Fetch Account details
           },
         ],
-        order: [["date", "DESC"]], // Sort by latest transactions
+        order: [["created_at", "DESC"]], // Sort by latest transactions
       });
 
       // ✅ Handle Empty Transactions
@@ -119,7 +119,7 @@ const TransactionController = {
   // ✅ Update Transaction (User-wise)
   async updateTransaction(req, res) {
     try {
-      const { transaction_id } = req.params;
+      const { id } = req.params;
       const { amount, date, description } = req.body;
       const user_id = req.user?.id; // Authenticated user ID
 
@@ -130,7 +130,7 @@ const TransactionController = {
 
       // ✅ Find Transaction for the User
       const transaction = await Transaction.findOne({
-        where: { id: transaction_id, user_id },
+        where: { id: id, user_id },
       });
 
       if (!transaction) {
@@ -160,37 +160,68 @@ const TransactionController = {
   // ✅ Delete Transaction (User-wise)
   async deleteTransaction(req, res) {
     try {
-      const { transaction_id } = req.params;
-      const user_id = req.user?.id; // Authenticated user ID
+        const { id } = req.params;
+        const user_id = req.user?.id; // Authenticated user ID
 
-      // ✅ Check authentication
-      if (!user_id) {
-        return res.status(401).json({ error: "Unauthorized access" });
-      }
+        console.log("🟢 Received transaction_id:", id);
+        console.log("🟢 Authenticated user_id:", user_id);
 
-      // ✅ Find Transaction for the User
-      const transaction = await Transaction.findOne({
-        where: { id: transaction_id, user_id },
-      });
+        // Check authentication
+        if (!user_id) {
+            return res.status(401).json({ error: "Unauthorized access" });
+        }
 
-      if (!transaction) {
-        return res.status(404).json({ error: "Transaction not found or unauthorized" });
-      }
+        // Check if transaction ID is provided
+        if (!id) {
+            return res.status(400).json({ error: "Transaction ID is required" });
+        }
 
-      // ✅ Delete Transaction
-      await transaction.destroy();
+        // Find the transaction belonging to the authenticated user
+        const transaction = await Transaction.findOne({
+            where: { id, user_id },
+        });
 
-      return res.status(200).json({
-        message: "Transaction deleted successfully",
-      });
+        if (!transaction) {
+            return res.status(404).json({ error: "Transaction not found or unauthorized" });
+        }
+
+        // Convert the transaction amount to a float
+        const transactionAmount = parseFloat(transaction.amount);
+
+        // Find the Budget record that corresponds to the transaction's category
+        // (Make sure your Budget model has a `category_id` field)
+        const budget = await Budget.findOne({
+            where: {
+                user_id,
+                category_id: transaction.category_id,
+            },
+        });
+
+        if (budget) {
+            const oldTotal = parseFloat(budget.total_amount);
+            const newTotalAmount = oldTotal - transactionAmount;
+
+            console.log(`Updating Budget for category ${transaction.category_id}: ${oldTotal} -> ${newTotalAmount}`);
+            await budget.update({ total_amount: newTotalAmount });
+        } else {
+            console.log(`No budget record found for user ${user_id} and category ${transaction.category_id}`);
+        }
+
+        // Delete the transaction
+        await transaction.destroy();
+
+        return res.status(200).json({ message: "Transaction deleted successfully" });
     } catch (error) {
-      console.error("❌ Error in deleteTransaction:", error);
-      return res.status(500).json({
-        error: "Internal Server Error",
-        details: error.message,
-      });
+        console.error("❌ Error in deleteTransaction:", error);
+        return res.status(500).json({
+            error: "Internal Server Error",
+            details: error.message,
+        });
     }
-  },
+}
+
+
+
 };
 
 module.exports = TransactionController;

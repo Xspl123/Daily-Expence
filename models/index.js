@@ -1,8 +1,10 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = new Sequelize("admin_panel", "root", "root", {
   host: "localhost",
-  dialect: "mysql",
+  dialect: "mysql",  // Ensure MySQL dialect is set
+  dialectModule: require('mysql2'), // Force MySQL module
 });
+
 
 // Import Models
 const User = require("./user")(sequelize, DataTypes);
